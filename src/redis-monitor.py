@@ -7,6 +7,7 @@ import redis
 import datetime
 import threading
 import traceback
+## argparse 第三方参数解析工具
 import argparse
 import time
 
@@ -59,7 +60,8 @@ class Monitor(object):
             yield self.parse_response()
 
 class MonitorThread(threading.Thread):
-    """Runs a thread to execute the MONITOR command against a given Redis server
+    """
+    Runs a thread to execute the MONITOR command against a given Redis server
     and store the resulting aggregated statistics in the configured stats
     provider.
     """
@@ -150,12 +152,14 @@ class MonitorThread(threading.Thread):
                 break
 
 class InfoThread(threading.Thread):
-    """Runs a thread to execute the INFO command against a given Redis server
+    """
+    Runs a thread to execute the INFO command against a given Redis server
     and store the resulting statistics in the configured stats provider.
     """
 
     def __init__(self, server, port, password=None):
-        """Initializes an InfoThread instance.
+        """
+        Initializes an InfoThread instance.
 
         Args:
             server (str): The host name of IP of the Redis server to monitor.
@@ -173,17 +177,20 @@ class InfoThread(threading.Thread):
         self._stop = threading.Event()
 
     def stop(self):
-        """Stops the thread.
+        """
+        Stops the thread.
         """
         self._stop.set()
 
     def stopped(self):
-        """Returns True if the thread is stopped, False otherwise.
+        """
+        Returns True if the thread is stopped, False otherwise.
         """
         return self._stop.is_set()
 
     def run(self):
-        """Does all the work.
+        """
+        Does all the work.
         """
         stats_provider = RedisLiveDataProvider.get_provider()
         redis_client = redis.StrictRedis(host=self.server, port=self.port, db=0,
@@ -238,7 +245,8 @@ class RedisMonitor(object):
         self.active = True
 
     def run(self, duration):
-        """Monitors all redis servers defined in the config for a certain number
+        """
+        Monitors all redis servers defined in the config for a certain number
         of seconds.
 
         Args:
@@ -250,7 +258,7 @@ class RedisMonitor(object):
         for redis_server in redis_servers:
 
             redis_password = redis_server.get("password")
-
+            ## 监控类调用monitor, info两个线程类
             monitor = MonitorThread(redis_server["server"], redis_server["port"], redis_password)
             self.threads.append(monitor)
             monitor.setDaemon(True)
@@ -272,7 +280,8 @@ class RedisMonitor(object):
             t.cancel()
 
     def stop(self):
-        """Stops the monitor and all associated threads.
+        """
+        Stops the monitor and all associated threads.
         """
         if args.quiet==False:
             print "shutting down..."
@@ -288,7 +297,7 @@ if __name__ == '__main__':
                         help="duration to run the monitor command (in seconds)",
                         required=True)
     parser.add_argument('--quiet',
-                        help="do  not write anything to standard output",
+                        help="do not write anything to standard output",
                         required=False,
                         action='store_true')
     args = parser.parse_args()
